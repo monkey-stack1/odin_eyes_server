@@ -3,19 +3,27 @@ from pathlib import Path
 
 
 def upload_to_vikingfile(file_path: str) -> str | None:
-    """Uploads a file to VikingFile anonymously (sync)."""
+    """Uploads a file to VikingFile and returns the DIRECT download URL."""
     try:
-        client = VikingClient()  # user_hash خالی = آپلود ناشناس
+        client = VikingClient()
+
+        # Upload the file
         uploaded = client.upload_file(filepath=Path(file_path))
         print(f"Uploaded: {uploaded.name}")
-        print(f"URL: {uploaded.url}")
-        return uploaded.url
+
+        # Get the direct download URL (not the page URL)
+        direct_url = client.get_download_url(uploaded.hash)
+
+        print(f"Direct URL: {direct_url}")
+        return direct_url
+
     except Exception as e:
         print(f"VikingFile error: {e}")
         return None
 
 
 def upload_with_rotation(file_path: str) -> tuple[str, str] | None:
+    """Tries each uploader in order until one succeeds."""
     uploaders = [
         ('vikingfile', upload_to_vikingfile),
     ]
