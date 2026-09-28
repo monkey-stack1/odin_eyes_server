@@ -13,29 +13,39 @@ SOURCES: List[Tuple[str, str]] = [
         "main/subscriptions/v2ray/super-sub.txt",
     ),
     (
-        "morpheus_best",
-        "https://raw.githubusercontent.com/morpheusadam/v2ray-config/"
-        "main/subs/bundles/best.txt",
+        "matin_all",
+        "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/"
+        "main/subscriptions/v2ray/all_sub.txt",
     ),
     (
-        "mehrtat_vless",
-        "https://raw.githubusercontent.com/mehrtat/vless-collector/"
-        "main/vless.txt",
+        "miladtahanian",
+        "https://raw.githubusercontent.com/miladtahanian/"
+        "Config-Collector/main/mixed_iran.txt",
+    ),
+    (
+        "mohammadaz2_validated",
+        "https://raw.githubusercontent.com/mohammadaz2/"
+        "v2rayConfigsForYou/main/configs.txt",
+    ),
+    (
+        "vlesscollector",
+        "https://raw.githubusercontent.com/vlesscollector/"
+        "vlesscollector/refs/heads/main/vless_configs.txt",
     ),
     (
         "solispirit_vless",
         "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/"
-        "main/subscriptions/vless.txt",
+        "main/Subscriptions/vless.txt",
     ),
     (
         "solispirit_trojan",
         "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/"
-        "main/subscriptions/trojan.txt",
+        "main/Subscriptions/trojan.txt",
     ),
     (
         "solispirit_ss",
         "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/"
-        "main/subscriptions/ss.txt",
+        "main/Subscriptions/ss.txt",
     ),
     (
         "mahdibland",
