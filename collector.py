@@ -7,7 +7,7 @@ import requests
 
 
 SOURCES: List[Tuple[str, str]] = [
-    # ===== TCP (موتور اول - libXray) =====
+    # ===== TCP ( libXray) =====
     (
         "matin_super",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/"
@@ -59,7 +59,7 @@ SOURCES: List[Tuple[str, str]] = [
         "telegram-configs-collector/main/splitted/mixed",
     ),
 
-    # ===== UDP (موتور دوم - sing-box) =====
+    # ===== UDP ( sing-box) =====
     (
         "argh94_hysteria2",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/"
@@ -86,7 +86,7 @@ SOURCES: List[Tuple[str, str]] = [
         "FreeList-V2ray-Configs/main/All_Config.txt",
     ),
 
-    # ===== WireGuard (موتور سوم - AmneziaWG) =====
+    # ===== WireGuard (  AmneziaWG) =====
     (
         "argh94_wireguard",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/"
