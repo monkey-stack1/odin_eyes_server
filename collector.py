@@ -7,7 +7,6 @@ import requests
 
 
 SOURCES: List[Tuple[str, str]] = [
-    # ===== TCP ( libXray) =====
     (
         "matin_super",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/"
@@ -58,8 +57,6 @@ SOURCES: List[Tuple[str, str]] = [
         "https://raw.githubusercontent.com/soroushmirzaei/"
         "telegram-configs-collector/main/splitted/mixed",
     ),
-
-    # ===== UDP ( sing-box) =====
     (
         "argh94_hysteria2",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/"
@@ -85,8 +82,6 @@ SOURCES: List[Tuple[str, str]] = [
         "https://raw.githubusercontent.com/DukeMehdi/"
         "FreeList-V2ray-Configs/main/All_Config.txt",
     ),
-
-    # ===== WireGuard (  AmneziaWG) =====
     (
         "argh94_wireguard",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/"
@@ -107,7 +102,6 @@ SUPPORTED_PREFIXES = (
     "wg://",
 )
 
-# الگوی regex برای استخراج URI از متن
 URI_PATTERN = re.compile(
     r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|wireguard|wg)://\S+",
     flags=re.IGNORECASE,
@@ -248,7 +242,6 @@ def collect() -> List[str]:
     valid = filter_valid(unique)
     print(f"Valid: {len(valid)}")
 
-    # آمار به تفکیک پروتکل
     protocol_counts = {}
     for config in valid:
         for prefix in SUPPORTED_PREFIXES:
