@@ -7,6 +7,7 @@ import requests
 
 
 SOURCES: List[Tuple[str, str]] = [
+    # ===== TCP (موتور اول - libXray) =====
     (
         "matin_super",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/"
@@ -57,6 +58,40 @@ SOURCES: List[Tuple[str, str]] = [
         "https://raw.githubusercontent.com/soroushmirzaei/"
         "telegram-configs-collector/main/splitted/mixed",
     ),
+
+    # ===== UDP (موتور دوم - sing-box) =====
+    (
+        "argh94_hysteria2",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
+        "main/hysteria/Hysteria2.txt",
+    ),
+    (
+        "argh94_tuic",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
+        "main/tuic/Tuic.txt",
+    ),
+    (
+        "argh94_all",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
+        "main/All_Config.txt",
+    ),
+    (
+        "limilco_hysteria",
+        "https://raw.githubusercontent.com/liMilCo/v2r/"
+        "main/pro/hysteria.txt",
+    ),
+    (
+        "dukemehdi_all",
+        "https://raw.githubusercontent.com/DukeMehdi/"
+        "FreeList-V2ray-Configs/main/All_Config.txt",
+    ),
+
+    # ===== WireGuard (موتور سوم - AmneziaWG) =====
+    (
+        "argh94_wireguard",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
+        "main/wireguard/WireGuard.txt",
+    ),
 ]
 
 SUPPORTED_PREFIXES = (
@@ -64,6 +99,18 @@ SUPPORTED_PREFIXES = (
     "vless://",
     "trojan://",
     "ss://",
+    "hysteria2://",
+    "hy2://",
+    "hysteria://",
+    "tuic://",
+    "wireguard://",
+    "wg://",
+)
+
+# الگوی regex برای استخراج URI از متن
+URI_PATTERN = re.compile(
+    r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|wireguard|wg)://\S+",
+    flags=re.IGNORECASE,
 )
 
 
@@ -74,15 +121,11 @@ def _extract_uri_lines(text: str) -> List[str]:
         if not value or value.startswith("#"):
             continue
 
-        if value.startswith(SUPPORTED_PREFIXES):
+        if value.lower().startswith(SUPPORTED_PREFIXES):
             lines.append(value)
             continue
 
-        matches = re.findall(
-            r"(?:vmess|vless|trojan|ss)://\\S+",
-            value,
-            flags=re.IGNORECASE,
-        )
+        matches = URI_PATTERN.findall(value)
         lines.extend(match.strip().rstrip(",") for match in matches)
 
     return lines
@@ -204,6 +247,19 @@ def collect() -> List[str]:
 
     valid = filter_valid(unique)
     print(f"Valid: {len(valid)}")
+
+    # آمار به تفکیک پروتکل
+    protocol_counts = {}
+    for config in valid:
+        for prefix in SUPPORTED_PREFIXES:
+            if config.lower().startswith(prefix):
+                protocol = prefix.replace("://", "")
+                protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
+                break
+
+    print("Protocol breakdown:")
+    for protocol, count in sorted(protocol_counts.items(), key=lambda x: -x[1]):
+        print(f"  {protocol}: {count}")
 
     return valid
 
