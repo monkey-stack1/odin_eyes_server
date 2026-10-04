@@ -1,3 +1,4 @@
+import argparse
 import base64
 import json
 import re
@@ -97,6 +98,19 @@ SUPPORTED_PREFIXES = (
     "hysteria2://",
     "hy2://",
     "hysteria://",
+    "tuic://",
+    "wireguard://",
+    "wg://",
+)
+
+# TCP first, UDP second (TCP is proven; UDP is experimental)
+FAMILY_ORDER = (
+    "vmess://",
+    "vless://",
+    "trojan://",
+    "ss://",
+    "hysteria2://",
+    "hy2://",
     "tuic://",
     "wireguard://",
     "wg://",
@@ -230,7 +244,48 @@ def filter_valid(configs: List[str]) -> List[str]:
     return valid
 
 
-def collect() -> List[str]:
+def protocol_of(config: str) -> str:
+    lower = config.lower()
+    for prefix in FAMILY_ORDER:
+        if lower.startswith(prefix):
+            return prefix.replace("://", "")
+    return "unknown"
+
+
+def select_round_robin(
+    configs: List[str],
+    max_configs: int,
+) -> List[str]:
+    buckets: dict = {}
+    for config in configs:
+        proto = protocol_of(config)
+        buckets.setdefault(proto, []).append(config)
+
+    order = [p.replace("://", "") for p in FAMILY_ORDER]
+    order.append("unknown")
+    for proto in buckets:
+        if proto not in order:
+            order.append(proto)
+
+    selected: List[str] = []
+    index = 0
+    while len(selected) < max_configs:
+        progress = False
+        for proto in order:
+            bucket = buckets.get(proto, [])
+            if index < len(bucket):
+                selected.append(bucket[index])
+                progress = True
+                if len(selected) >= max_configs:
+                    break
+        if not progress:
+            break
+        index += 1
+
+    return selected
+
+
+def collect(max_configs: int = 0) -> List[str]:
     print("Fetching configs from configured sources...")
 
     raw = fetch_configs()
@@ -242,25 +297,47 @@ def collect() -> List[str]:
     valid = filter_valid(unique)
     print(f"Valid: {len(valid)}")
 
-    protocol_counts = {}
+    if max_configs > 0 and len(valid) > max_configs:
+        valid = select_round_robin(valid, max_configs)
+        print(f"Selected (round-robin, max={max_configs}): {len(valid)}")
+
+    protocol_counts: dict = {}
     for config in valid:
-        for prefix in SUPPORTED_PREFIXES:
-            if config.lower().startswith(prefix):
-                protocol = prefix.replace("://", "")
-                protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
-                break
+        proto = protocol_of(config)
+        protocol_counts[proto] = protocol_counts.get(proto, 0) + 1
 
     print("Protocol breakdown:")
-    for protocol, count in sorted(protocol_counts.items(), key=lambda x: -x[1]):
+    for protocol, count in sorted(
+        protocol_counts.items(), key=lambda x: -x[1]
+    ):
         print(f"  {protocol}: {count}")
 
     return valid
 
 
-if __name__ == "__main__":
-    configs = collect()
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--max-configs",
+        type=int,
+        default=0,
+        help="Maximum configs to keep (0 = no limit). TCP first, round-robin.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="configs.json",
+        help="Output JSON file.",
+    )
+    args = parser.parse_args()
 
-    with open("configs.json", "w", encoding="utf-8") as output:
+    configs = collect(max_configs=args.max_configs)
+
+    with open(args.output, "w", encoding="utf-8") as output:
         json.dump(configs, output, ensure_ascii=False)
 
-    print(f"Saved {len(configs)} configs to configs.json")
+    print(f"Saved {len(configs)} configs to {args.output}")
+
+
+if __name__ == "__main__":
+    main()
