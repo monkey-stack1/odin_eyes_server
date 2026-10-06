@@ -1,13 +1,25 @@
 import base64
 import json
+import os
 from datetime import datetime, timezone
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
 
-SECRET_KEY = b"OdinEyes2026Key!"
-IV = b"OdinEyesIV2026!!"
+def _load_key(name: str, default: bytes) -> bytes:
+    value = os.environ.get(name)
+    if not value:
+        print(f"Warning: {name} not set, using default (insecure).")
+        return default
+    encoded = value.encode("utf-8")
+    if len(encoded) != 16:
+        raise ValueError(f"{name} must be exactly 16 bytes, got {len(encoded)}")
+    return encoded
+
+
+SECRET_KEY = _load_key("AES_KEY", b"OdinEyes2026Key!")
+IV = _load_key("AES_IV", b"OdinEyesIV2026!!")
 
 
 def encrypt_configs(configs: list) -> str:
