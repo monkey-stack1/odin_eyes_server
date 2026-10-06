@@ -8,13 +8,19 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
 
-def _load_key(name: str) -> bytes:
+DEFAULT_KEY = b"OdinEyes2026Key!"
+DEFAULT_IV = b"OdinEyesIV2026!!"
+
+
+def _load_key(name: str, default: bytes) -> bytes:
     value = os.environ.get(name)
 
     if not value:
-        raise ValueError(
-            f"{name} environment variable is required."
+        print(
+            f"Warning: {name} not set, "
+            f"using default (insecure)."
         )
+        return default
 
     encoded = value.encode("utf-8")
 
@@ -28,11 +34,11 @@ def _load_key(name: str) -> bytes:
 
 
 def _get_key() -> bytes:
-    return _load_key("AES_KEY")
+    return _load_key("AES_KEY", DEFAULT_KEY)
 
 
 def _get_iv() -> bytes:
-    return _load_key("AES_IV")
+    return _load_key("AES_IV", DEFAULT_IV)
 
 
 def encrypt_configs(configs: List[str]) -> str:
