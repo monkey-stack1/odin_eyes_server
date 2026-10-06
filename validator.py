@@ -18,8 +18,6 @@ SUPPORTED_PROTOCOLS = (
     "hysteria://",
     "tuic://",
     "anytls://",
-    "wireguard://",
-    "wg://",
 )
 
 TCP_PROTOCOLS = (
@@ -35,8 +33,6 @@ UDP_PROTOCOLS = (
     "hy2://",
     "hysteria://",
     "tuic://",
-    "wireguard://",
-    "wg://",
 )
 
 HOST_PATTERN = re.compile(r"^[A-Za-z0-9._:-]+$")
@@ -160,8 +156,6 @@ def extract_host_port(config: str) -> Tuple[Optional[str], Optional[int]]:
             "hy2://",
             "hysteria://",
             "tuic://",
-            "wireguard://",
-            "wg://",
         )
     ):
         result = _extract_uri_host_port(value)
@@ -288,6 +282,25 @@ def _validate_udp_uri(config: str) -> bool:
         return False
 
 
+def _is_wireguard_ini(config: str) -> bool:
+    lower = config.lower()
+
+    return "[interface]" in lower and "[peer]" in lower
+
+
+def _valid_wireguard_ini(config: str) -> bool:
+    lower = config.lower()
+
+    if "127.0.0.1" in lower or "localhost" in lower:
+        return False
+
+    return (
+        "privatekey" in lower
+        and "publickey" in lower
+        and "endpoint" in lower
+    )
+
+
 def is_structurally_valid(config: str) -> bool:
     if not isinstance(config, str):
         return False
@@ -296,6 +309,9 @@ def is_structurally_valid(config: str) -> bool:
 
     if len(value) < 20 or len(value) > 20000:
         return False
+
+    if _is_wireguard_ini(value):
+        return _valid_wireguard_ini(value)
 
     if not value.lower().startswith(SUPPORTED_PROTOCOLS):
         return False
@@ -345,6 +361,9 @@ def is_structurally_valid(config: str) -> bool:
 def is_secure(config: str) -> bool:
     lower = config.lower()
 
+    if _is_wireguard_ini(config):
+        return True
+
     if lower.startswith("ss://"):
         insecure_markers = ("method=none", "method=rc4", "method=des")
         if any(marker in lower for marker in insecure_markers):
@@ -372,6 +391,9 @@ def test_ping(host: str, port: int, timeout: int = 3) -> bool:
 
 
 def _is_udp_protocol(config: str) -> bool:
+    if _is_wireguard_ini(config):
+        return True
+
     lower = config.lower()
     return lower.startswith(UDP_PROTOCOLS)
 

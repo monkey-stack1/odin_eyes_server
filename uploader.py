@@ -1,3 +1,5 @@
+import re
+
 import requests
 
 
@@ -87,13 +89,47 @@ def upload_to_tmpfiles(file_path: str) -> str | None:
             print(f"Tmpfiles: invalid page_url {page_url[:200]}")
             return None
 
-        return page_url.replace(
-            "tmpfiles.org/",
-            "tmpfiles.org/dl/",
-        )
+        direct = _tmpfiles_direct_url(page_url)
+
+        if not direct:
+            print(f"Tmpfiles: could not resolve direct URL from {page_url}")
+            return None
+
+        return direct
 
     except Exception as e:
         print(f"Tmpfiles error: {e}")
+
+    return None
+
+
+def _tmpfiles_direct_url(page_url: str) -> str | None:
+    """Resolve the real direct-download link from the tmpfiles page.
+
+    https://tmpfiles.org/<id>/<name> redirects /dl/ back to the HTML page, so
+    the usable link is the one embedded in the page markup.
+    """
+    try:
+        page = requests.get(page_url, timeout=30)
+
+        match = re.search(
+            r'href="(https://tmpfiles\.org/dl/[^"]+)"',
+            page.text,
+        )
+
+        if match:
+            return match.group(1)
+
+        matches = re.findall(
+            r"https://tmpfiles\.org/dl/[^\s\"'<>]+",
+            page.text,
+        )
+
+        if matches:
+            return matches[0]
+
+    except Exception as e:
+        print(f"Tmpfiles resolve error: {e}")
 
     return None
 

@@ -1,6 +1,7 @@
 import argparse
 import base64
 import json
+import os
 import re
 from typing import List, Tuple
 
@@ -90,15 +91,13 @@ SOURCES: List[Tuple[str, str]] = [
         "dimzon_tuic",
         "https://raw.githubusercontent.com/dimzon/scaling-sniffle/main/any/tuic.txt",
     ),
-    # UDP - WireGuard
-    (
-        "gfpcom_wireguard",
-        "https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/wireguard.txt",
-    ),
-    (
-        "argh94_wireguard",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/WireGuard.txt",
-    ),
+]
+
+
+# WireGuard is published as INI configs ([Interface]/[Peer]), not as URIs.
+# Each entry is (owner/repo, directory) whose *.conf files are merged.
+WIREGUARD_DIRS: List[Tuple[str, str]] = [
+    ("rtwo2/FastNodes", "sub/wireguard"),
 ]
 
 
@@ -112,8 +111,6 @@ SUPPORTED_PREFIXES = (
     "hysteria://",
     "tuic://",
     "anytls://",
-    "wireguard://",
-    "wg://",
 )
 
 
@@ -125,16 +122,45 @@ FAMILY_ORDER = (
     "trojan://",
     "anytls://",
     "ss://",
-    "wireguard://",
     "hy2://",
-    "wg://",
 )
 
 
 URI_PATTERN = re.compile(
-    r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|anytls|wireguard|wg)://\S+",
+    r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|anytls)://\S+",
     flags=re.IGNORECASE,
 )
+
+
+def _is_wireguard_block(text: str) -> bool:
+    lower = text.lower()
+
+    return "[interface]" in lower and "[peer]" in lower
+
+
+def _extract_wireguard_blocks(text: str) -> List[str]:
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+
+    blocks: List[str] = []
+    current: List[str] = []
+
+    for line in normalized.split("\n"):
+        stripped = line.strip()
+
+        if stripped.lower().startswith("[interface]"):
+            if current:
+                blocks.append("\n".join(current).strip())
+
+            current = [stripped]
+            continue
+
+        if current:
+            current.append(line.rstrip())
+
+    if current:
+        blocks.append("\n".join(current).strip())
+
+    return [block for block in blocks if _is_wireguard_block(block)]
 
 
 def _extract_uri_lines(text: str) -> List[str]:
@@ -195,6 +221,67 @@ def _parse_source_content(content: str) -> List[str]:
     return []
 
 
+def _gh_headers() -> dict:
+    headers = {
+        "User-Agent": "OdinEyes-Collector/2.0",
+        "Accept": "application/vnd.github+json",
+    }
+
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    return headers
+
+
+def _fetch_wireguard_configs() -> List[str]:
+    blocks: List[str] = []
+
+    for repo, path in WIREGUARD_DIRS:
+        try:
+            listing = requests.get(
+                f"https://api.github.com/repos/{repo}/contents/{path}",
+                headers=_gh_headers(),
+                timeout=20,
+            )
+
+            listing.raise_for_status()
+
+            files = [
+                item
+                for item in listing.json()
+                if item.get("type") == "file"
+                and item.get("name", "").lower().endswith(".conf")
+                and item.get("download_url")
+            ]
+
+            fetched = 0
+
+            for item in files:
+                raw = requests.get(
+                    item["download_url"],
+                    headers=_gh_headers(),
+                    timeout=20,
+                )
+
+                raw.raise_for_status()
+
+                parsed = _extract_wireguard_blocks(raw.text)
+                blocks.extend(parsed)
+                fetched += len(parsed)
+
+            print(
+                f"Source wireguard:{repo}/{path}: "
+                f"files={len(files)} configs={fetched}"
+            )
+
+        except Exception as exc:
+            print(f"Source wireguard:{repo}/{path}: ERROR {exc}")
+
+    return blocks
+
+
 def fetch_configs() -> List[str]:
     all_configs: List[str] = []
 
@@ -220,6 +307,8 @@ def fetch_configs() -> List[str]:
 
         except Exception as exc:
             print(f"Source {name}: ERROR {exc}")
+
+    all_configs.extend(_fetch_wireguard_configs())
 
     return all_configs
 
@@ -255,6 +344,12 @@ def filter_valid(configs: List[str]) -> List[str]:
     for config in configs:
         lower = config.lower()
 
+        if _is_wireguard_block(config):
+            if len(config) >= 20:
+                valid.append(config)
+
+            continue
+
         if not lower.startswith(SUPPORTED_PREFIXES):
             continue
 
@@ -267,6 +362,9 @@ def filter_valid(configs: List[str]) -> List[str]:
 
 
 def protocol_of(config: str) -> str:
+    if _is_wireguard_block(config):
+        return "wireguard"
+
     lower = config.lower()
 
     for prefix in FAMILY_ORDER:
