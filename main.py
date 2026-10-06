@@ -1,3 +1,6 @@
+import os
+import sys
+
 from collector import collect
 from validator import validate_configs
 from encryptor import encrypt_configs, save_encrypted
@@ -5,39 +8,55 @@ from uploader import upload_with_rotation
 from gist_updater import update_gist
 
 
-def main():
+MAX_CONFIGS = int(os.environ.get("MAX_CONFIGS", "5000"))
+OUTPUT_FILE = os.environ.get("OUTPUT_FILE", "configs.json")
+ENCRYPTED_FILE = os.environ.get("ENCRYPTED_FILE", "configs.enc")
+
+
+def main() -> int:
     print("=== Odin Eyes Update Pipeline ===")
 
     # Step 1: Collect configs from GitHub
-    configs = collect()
+    print(f"Collecting configs (max={MAX_CONFIGS})...")
+    configs = collect(max_configs=MAX_CONFIGS)
     if not configs:
         print("No configs collected. Aborting.")
-        return
+        return 1
+
+    print(f"Collected: {len(configs)}")
 
     # Step 2: Validate (remove dead and insecure)
     valid_configs = validate_configs(configs)
     if not valid_configs:
         print("No valid configs after validation. Aborting.")
-        return
+        return 1
+
+    print(f"Valid: {len(valid_configs)}")
 
     # Step 3: Encrypt
     encrypted = encrypt_configs(valid_configs)
-    save_encrypted(encrypted)
-    print(f"Encrypted {len(valid_configs)} configs.")
+    save_encrypted(encrypted, ENCRYPTED_FILE)
+    print(f"Encrypted {len(valid_configs)} configs to {ENCRYPTED_FILE}.")
 
     # Step 4: Upload with rotation
-    result = upload_with_rotation('configs.enc')
+    result = upload_with_rotation(ENCRYPTED_FILE)
     if not result:
         print("Upload failed. Aborting.")
-        return
+        return 1
 
     url, name = result
     print(f"Uploaded to {name}: {url}")
 
     # Step 5: Update Gist
     success = update_gist(url, name)
-    print(f"Gist update: {'OK' if success else 'FAILED'}")
+    if not success:
+        print("Gist update FAILED.")
+        return 1
+
+    print("Gist update: OK")
+    print("=== Pipeline finished successfully ===")
+    return 0
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())
