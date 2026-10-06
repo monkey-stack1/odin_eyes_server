@@ -78,6 +78,18 @@ SOURCES: List[Tuple[str, str]] = [
         "argh94_tuic",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/main/Tuic.txt",
     ),
+    (
+        "rtwo2_tuic",
+        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/tuic.txt",
+    ),
+    (
+        "coldwater_tuic",
+        "https://raw.githubusercontent.com/coldwater-10/V2ray-Config/main/Sub1.txt",
+    ),
+    (
+        "dimzon_tuic",
+        "https://raw.githubusercontent.com/dimzon/scaling-sniffle/main/any/tuic.txt",
+    ),
     # UDP - WireGuard
     (
         "gfpcom_wireguard",
