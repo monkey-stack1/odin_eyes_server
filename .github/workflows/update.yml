@@ -20,6 +20,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Require encryption secrets
+        env:
+          AES_KEY: ${{ secrets.AES_KEY }}
+          AES_IV: ${{ secrets.AES_IV }}
+        run: |
+          if [ -z "$AES_KEY" ] || [ -z "$AES_IV" ]; then
+            echo "::error::AES_KEY and AES_IV secrets must be set (refusing to run with insecure defaults)."
+            exit 1
+          fi
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -41,15 +51,3 @@ jobs:
           OUTPUT_FILE: 'configs.json'
           ENCRYPTED_FILE: 'configs.enc'
         run: python main.py
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pipeline-output
-          path: |
-            configs.json
-            validated.json
-            configs.enc
-          if-no-files-found: ignore
-          retention-days: 3

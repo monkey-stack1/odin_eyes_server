@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.env
+
+# Pipeline outputs
+configs.json
+validated.json
+configs.enc
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

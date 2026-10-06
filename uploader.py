@@ -155,7 +155,8 @@ def upload_with_rotation(
         url = func(file_path)
 
         if url:
-            print(f"Success via {name}: {url}")
+            # Do not print the URL: workflow logs on a public repo are world-readable.
+            print(f"Success via {name}")
             return url, name
 
         print(f"Failed via {name}")
@@ -169,7 +170,7 @@ if __name__ == "__main__":
 
     if result:
         url, name = result
-        print(f"Uploaded: {url}")
+        print("Uploaded")
         print(f"Uploader: {name}")
     else:
         print("All uploaders failed.")

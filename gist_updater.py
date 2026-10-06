@@ -53,7 +53,8 @@ def update_gist(
         return False
 
     if response.status_code == 200:
-        print(f"Gist update: OK ({upload_url})")
+        # Do not print the URL: workflow logs on a public repo are world-readable.
+        print("Gist update: OK")
         return True
 
     print(

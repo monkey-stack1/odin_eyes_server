@@ -57,7 +57,8 @@ def main() -> int:
 
     url, name = result
 
-    print(f"Uploaded to {name}: {url}")
+    # Do not print the URL: workflow logs on a public repo are world-readable.
+    print(f"Uploaded to {name}")
 
     success = update_gist(url, name)
 
