@@ -8,95 +8,84 @@ import requests
 
 
 SOURCES: List[Tuple[str, str]] = [
-    # TCP
+    # TCP aggregators
     (
         "matin_super",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/super-sub.txt",
     ),
-    # UDP - Hysteria2
-    (
-        "argh94_hysteria2",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/hysteria/Hysteria2.txt",
-    ),
-    # TCP
     (
         "matin_all",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
     ),
-    # UDP - TUIC
-    (
-        "argh94_tuic",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/tuic/Tuic.txt",
-    ),
-    # TCP
     (
         "miladtahanian",
         "https://raw.githubusercontent.com/miladtahanian/Config-Collector/main/mixed_iran.txt",
     ),
-    # UDP - WireGuard 
-    (
-        "gfpcom_wireguard",
-        "https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/wireguard.txt",
-    ),
-    # TCP
     (
         "mohammadaz2_validated",
         "https://raw.githubusercontent.com/mohammadaz2/v2rayConfigsForYou/main/configs.txt",
     ),
-    # UDP - Hysteria
-    (
-        "limilco_hysteria",
-        "https://raw.githubusercontent.com/liMilCo/v2r/main/pro/hysteria.txt",
-    ),
-    # TCP
     (
         "vlesscollector",
         "https://raw.githubusercontent.com/vlesscollector/vlesscollector/refs/heads/main/vless_configs.txt",
     ),
-    # UDP - All
-    (
-        "argh94_all",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/All_Config.txt",
-    ),
-    # TCP
-    (
-        "solispirit_vless",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/vless.txt",
-    ),
-    # UDP - Mixed 
-    (
-        "soroushmirzaei",
-        "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/splitted/mixed",
-    ),
-    # TCP
-    (
-        "solispirit_trojan",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/trojan.txt",
-    ),
-    # UDP - All 
-    (
-        "dukemehdi_all",
-        "https://raw.githubusercontent.com/DukeMehdi/FreeList-V2ray-Configs/main/All_Config.txt",
-    ),
-    # TCP
-    (
-        "solispirit_ss",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/ss.txt",
-    ),
-    # TCP
     (
         "mahdibland",
         "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt",
     ),
-    # UDP - AnyTLS 
     (
-        "itlaohui_anytls",
-        "https://raw.githubusercontent.com/itlaohui/aggregator/main/subscribe/anytls.txt",
+        "epodonios_all",
+        "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt",
     ),
-    # UDP - WireGuard 
+    # Per-protocol (SoliSpirit: Protocols/)
     (
-        "rtwo2_wireguard",
-        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/wireguard.txt",
+        "solispirit_vless",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Protocols/vless.txt",
+    ),
+    (
+        "solispirit_trojan",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Protocols/trojan.txt",
+    ),
+    (
+        "solispirit_ss",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Protocols/ss.txt",
+    ),
+    # Mixed / all
+    (
+        "dukemehdi_all",
+        "https://raw.githubusercontent.com/DukeMehdi/FreeList-V2ray-Configs/main/Configs/All-DukeMehdi-Configs.txt",
+    ),
+    (
+        "argh94_all",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/All_Config.txt",
+    ),
+    # UDP - AnyTLS
+    (
+        "rtwo2_anytls",
+        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/anytls.txt",
+    ),
+    # UDP - Hysteria2
+    (
+        "rtwo2_hysteria2",
+        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/hysteria2.txt",
+    ),
+    (
+        "limilco_hysteria",
+        "https://raw.githubusercontent.com/liMilCo/v2r/main/pro/hysteria.txt",
+    ),
+    # UDP - TUIC
+    (
+        "argh94_tuic",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/Tuic.txt",
+    ),
+    # UDP - WireGuard
+    (
+        "gfpcom_wireguard",
+        "https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/wireguard.txt",
+    ),
+    (
+        "argh94_wireguard",
+        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/WireGuard.txt",
     ),
 ]
 
