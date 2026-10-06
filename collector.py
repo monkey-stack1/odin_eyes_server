@@ -7,8 +7,6 @@ from typing import List, Tuple
 import requests
 
 
-# Sources are ordered as TCP, UDP, TCP, UDP as far as the available
-# source families allow.
 SOURCES: List[Tuple[str, str]] = [
     # TCP
     (
@@ -52,8 +50,18 @@ SOURCES: List[Tuple[str, str]] = [
     ),
     # TCP
     (
+        "vlesscollector",
+        "https://raw.githubusercontent.com/vlesscollector/vlesscollector/refs/heads/main/vless_configs.txt",
+    ),
+    # UDP
+    (
         "argh94_all",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/main/All_Config.txt",
+    ),
+    # TCP
+    (
+        "solispirit_vless",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/vless.txt",
     ),
     # UDP
     (
@@ -62,8 +70,8 @@ SOURCES: List[Tuple[str, str]] = [
     ),
     # TCP
     (
-        "vlesscollector",
-        "https://raw.githubusercontent.com/vlesscollector/vlesscollector/refs/heads/main/vless_configs.txt",
+        "solispirit_trojan",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/trojan.txt",
     ),
     # UDP
     (
@@ -72,17 +80,10 @@ SOURCES: List[Tuple[str, str]] = [
     ),
     # TCP
     (
-        "solispirit_vless",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/vless.txt",
-    ),
-    (
-        "solispirit_trojan",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/trojan.txt",
-    ),
-    (
         "solispirit_ss",
         "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/ss.txt",
     ),
+    # TCP
     (
         "mahdibland",
         "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt",
