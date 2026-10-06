@@ -18,7 +18,12 @@ def main() -> int:
 
     # Step 1: Collect configs from GitHub
     print(f"Collecting configs (max={MAX_CONFIGS})...")
-    configs = collect(max_configs=MAX_CONFIGS)
+
+    configs = collect(
+        max_configs=MAX_CONFIGS,
+        output=OUTPUT_FILE,
+    )
+
     if not configs:
         print("No configs collected. Aborting.")
         return 1
@@ -27,6 +32,7 @@ def main() -> int:
 
     # Step 2: Validate (remove dead and insecure)
     valid_configs = validate_configs(configs)
+
     if not valid_configs:
         print("No valid configs after validation. Aborting.")
         return 1
@@ -35,26 +41,38 @@ def main() -> int:
 
     # Step 3: Encrypt
     encrypted = encrypt_configs(valid_configs)
-    save_encrypted(encrypted, ENCRYPTED_FILE)
-    print(f"Encrypted {len(valid_configs)} configs to {ENCRYPTED_FILE}.")
+
+    save_encrypted(
+        encrypted,
+        ENCRYPTED_FILE,
+    )
+
+    print(
+        f"Encrypted {len(valid_configs)} "
+        f"configs to {ENCRYPTED_FILE}."
+    )
 
     # Step 4: Upload with rotation
     result = upload_with_rotation(ENCRYPTED_FILE)
+
     if not result:
         print("Upload failed. Aborting.")
         return 1
 
     url, name = result
+
     print(f"Uploaded to {name}: {url}")
 
     # Step 5: Update Gist
     success = update_gist(url, name)
+
     if not success:
         print("Gist update FAILED.")
         return 1
 
     print("Gist update: OK")
     print("=== Pipeline finished successfully ===")
+
     return 0
 
 
