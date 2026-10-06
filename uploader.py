@@ -17,6 +17,9 @@ def upload_to_catbox(file_path: str) -> str | None:
             if url.startswith("http"):
                 return url
 
+            print(f"Catbox: invalid URL {url[:200]}")
+            return None
+
         print(
             f"Catbox: http={response.status_code} "
             f"body={response.text[:200]}"
@@ -43,6 +46,9 @@ def upload_to_0x0(file_path: str) -> str | None:
             if url.startswith("http"):
                 return url
 
+            print(f"0x0: invalid URL {url[:200]}")
+            return None
+
         print(
             f"0x0: http={response.status_code} "
             f"body={response.text[:200]}"
@@ -63,31 +69,27 @@ def upload_to_tmpfiles(file_path: str) -> str | None:
                 timeout=60,
             )
 
-        if response.status_code == 200:
-            data = response.json()
-
-            page_url = data.get(
-                "data",
-                {},
-            ).get(
-                "url",
-                "",
+        if response.status_code != 200:
+            print(
+                f"Tmpfiles: http={response.status_code} "
+                f"body={response.text[:200]}"
             )
+            return None
 
-            if not page_url:
-                return None
+        data = response.json()
+        page_url = data.get("data", {}).get("url", "")
 
-            if not page_url.startswith("http"):
-                return None
+        if not page_url:
+            print(f"Tmpfiles: empty page_url in {data}")
+            return None
 
-            return page_url.replace(
-                "tmpfiles.org/",
-                "tmpfiles.org/dl/",
-            )
+        if not page_url.startswith("http"):
+            print(f"Tmpfiles: invalid page_url {page_url[:200]}")
+            return None
 
-        print(
-            f"Tmpfiles: http={response.status_code} "
-            f"body={response.text[:200]}"
+        return page_url.replace(
+            "tmpfiles.org/",
+            "tmpfiles.org/dl/",
         )
 
     except Exception as e:
@@ -105,30 +107,30 @@ def upload_to_uupload(file_path: str) -> str | None:
                 timeout=60,
             )
 
-        if response.status_code == 200:
-            data = response.json()
+        if response.status_code != 200:
+            print(
+                f"Uupload: http={response.status_code} "
+                f"body={response.text[:200]}"
+            )
+            return None
 
-            if data.get("status") == "success":
-                url = data.get(
-                    "file",
-                    {},
-                ).get(
-                    "url",
-                    "",
-                )
+        data = response.json()
 
-                if not url:
-                    return None
+        if data.get("status") != "success":
+            print(f"Uupload: status={data.get('status')} body={data}")
+            return None
 
-                if not url.startswith("http"):
-                    return None
+        url = data.get("file", {}).get("url", "")
 
-                return url
+        if not url:
+            print(f"Uupload: empty url in {data}")
+            return None
 
-        print(
-            f"Uupload: http={response.status_code} "
-            f"body={response.text[:200]}"
-        )
+        if not url.startswith("http"):
+            print(f"Uupload: invalid url {url[:200]}")
+            return None
+
+        return url
 
     except Exception as e:
         print(f"Uupload error: {e}")
@@ -153,28 +155,21 @@ def upload_with_rotation(
         url = func(file_path)
 
         if url:
-            print(
-                f"Success via {name}: {url}"
-            )
+            print(f"Success via {name}: {url}")
             return url, name
 
         print(f"Failed via {name}")
 
     print("All uploaders failed.")
-
     return None
 
 
 if __name__ == "__main__":
-    result = upload_with_rotation(
-        "configs.enc"
-    )
+    result = upload_with_rotation("configs.enc")
 
     if result:
         url, name = result
-
         print(f"Uploaded: {url}")
         print(f"Uploader: {name}")
-
     else:
         print("All uploaders failed.")
