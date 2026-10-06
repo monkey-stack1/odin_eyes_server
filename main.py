@@ -16,7 +16,6 @@ ENCRYPTED_FILE = os.environ.get("ENCRYPTED_FILE", "configs.enc")
 def main() -> int:
     print("=== Odin Eyes Update Pipeline ===")
 
-    # Step 1: Collect configs from GitHub
     print(f"Collecting configs (max={MAX_CONFIGS})...")
 
     configs = collect(
@@ -30,7 +29,6 @@ def main() -> int:
 
     print(f"Collected: {len(configs)}")
 
-    # Step 2: Validate (remove dead and insecure)
     valid_configs = validate_configs(configs)
 
     if not valid_configs:
@@ -39,7 +37,6 @@ def main() -> int:
 
     print(f"Valid: {len(valid_configs)}")
 
-    # Step 3: Encrypt
     encrypted = encrypt_configs(valid_configs)
 
     save_encrypted(
@@ -52,7 +49,6 @@ def main() -> int:
         f"configs to {ENCRYPTED_FILE}."
     )
 
-    # Step 4: Upload with rotation
     result = upload_with_rotation(ENCRYPTED_FILE)
 
     if not result:
@@ -63,7 +59,6 @@ def main() -> int:
 
     print(f"Uploaded to {name}: {url}")
 
-    # Step 5: Update Gist
     success = update_gist(url, name)
 
     if not success:
