@@ -8,7 +8,37 @@ from urllib.parse import unquote, urlparse
 from uuid import UUID
 
 
-SUPPORTED_PROTOCOLS = ("vmess://", "vless://", "trojan://", "ss://")
+SUPPORTED_PROTOCOLS = (
+    "vmess://",
+    "vless://",
+    "trojan://",
+    "ss://",
+    "hysteria2://",
+    "hy2://",
+    "hysteria://",
+    "tuic://",
+    "anytls://",
+    "wireguard://",
+    "wg://",
+)
+
+TCP_PROTOCOLS = (
+    "vmess://",
+    "vless://",
+    "trojan://",
+    "ss://",
+)
+
+UDP_PROTOCOLS = (
+    "hysteria2://",
+    "hy2://",
+    "hysteria://",
+    "tuic://",
+    "anytls://",
+    "wireguard://",
+    "wg://",
+)
+
 HOST_PATTERN = re.compile(r"^[A-Za-z0-9._:-]+$")
 
 
@@ -111,7 +141,6 @@ def _extract_uri_host_port(config: str) -> Optional[Tuple[str, int]]:
 
 
 def extract_host_port(config: str) -> Tuple[Optional[str], Optional[int]]:
-    """Extracts the endpoint host and port from a supported config."""
     value = config.strip()
 
     if value.lower().startswith("vmess://"):
@@ -121,6 +150,21 @@ def extract_host_port(config: str) -> Tuple[Optional[str], Optional[int]]:
         return None, None
 
     if value.lower().startswith(("vless://", "trojan://", "ss://")):
+        result = _extract_uri_host_port(value)
+        if result:
+            return result
+
+    if value.lower().startswith(
+        (
+            "hysteria2://",
+            "hy2://",
+            "hysteria://",
+            "tuic://",
+            "anytls://",
+            "wireguard://",
+            "wg://",
+        )
+    ):
         result = _extract_uri_host_port(value)
         if result:
             return result
@@ -202,8 +246,34 @@ def _validate_ss(config: str) -> bool:
         return False
 
 
+def _validate_udp_uri(config: str) -> bool:
+    try:
+        parsed = urlparse(config)
+        scheme = parsed.scheme.lower()
+
+        if scheme not in (
+            "hysteria2",
+            "hy2",
+            "hysteria",
+            "tuic",
+            "anytls",
+            "wireguard",
+            "wg",
+        ):
+            return False
+
+        host = parsed.hostname
+        port = parsed.port
+
+        if not _valid_host(host) or not _valid_port(port):
+            return False
+
+        return True
+    except (ValueError, UnicodeError):
+        return False
+
+
 def is_structurally_valid(config: str) -> bool:
-    """Rejects malformed configs before the network test."""
     if not isinstance(config, str):
         return False
 
@@ -225,23 +295,37 @@ def is_structurally_valid(config: str) -> bool:
     ):
         return False
 
-    if value.lower().startswith("vmess://"):
+    lower = value.lower()
+
+    if lower.startswith("vmess://"):
         return _extract_vmess(value) is not None
 
-    if value.lower().startswith("vless://"):
+    if lower.startswith("vless://"):
         return _validate_vless(value)
 
-    if value.lower().startswith("trojan://"):
+    if lower.startswith("trojan://"):
         return _validate_trojan(value)
 
-    if value.lower().startswith("ss://"):
+    if lower.startswith("ss://"):
         return _validate_ss(value)
+
+    if lower.startswith(
+        (
+            "hysteria2://",
+            "hy2://",
+            "hysteria://",
+            "tuic://",
+            "anytls://",
+            "wireguard://",
+            "wg://",
+        )
+    ):
+        return _validate_udp_uri(value)
 
     return False
 
 
 def is_secure(config: str) -> bool:
-    """Applies conservative security filters without requiring TLS."""
     lower = config.lower()
 
     if lower.startswith("ss://"):
@@ -263,7 +347,6 @@ def is_secure(config: str) -> bool:
 
 
 def test_ping(host: str, port: int, timeout: int = 3) -> bool:
-    """Tests whether a host and port accept a TCP connection."""
     try:
         with socket.create_connection((host, port), timeout=timeout):
             return True
@@ -271,11 +354,15 @@ def test_ping(host: str, port: int, timeout: int = 3) -> bool:
         return False
 
 
+def _is_udp_protocol(config: str) -> bool:
+    lower = config.lower()
+    return lower.startswith(UDP_PROTOCOLS)
+
+
 def validate_configs(
     configs: List[str],
     max_workers: int = 50,
 ) -> List[str]:
-    """Filters malformed configs and keeps only TCP-reachable candidates."""
     print(f"Validating {len(configs)} configs...")
 
     structural_configs = [
@@ -283,10 +370,7 @@ def validate_configs(
         for config in configs
         if is_structurally_valid(config)
     ]
-    print(
-        f"After structural validation: "
-        f"{len(structural_configs)}"
-    )
+    print(f"After structural validation: {len(structural_configs)}")
 
     secure_configs = [
         config
@@ -298,6 +382,9 @@ def validate_configs(
     valid_configs: List[str] = []
 
     def check_config(config: str) -> Optional[str]:
+        if _is_udp_protocol(config):
+            return config
+
         host, port = extract_host_port(config)
 
         if not host or not port:
@@ -320,10 +407,7 @@ def validate_configs(
             completed += 1
 
             if completed % 100 == 0:
-                print(
-                    f"Tested {completed}/"
-                    f"{len(secure_configs)}..."
-                )
+                print(f"Tested {completed}/{len(secure_configs)}...")
 
             result = future.result()
 
@@ -343,7 +427,4 @@ if __name__ == "__main__":
     with open("validated.json", "w", encoding="utf-8") as file:
         json.dump(valid, file, ensure_ascii=False)
 
-    print(
-        f"Saved {len(valid)} validated configs "
-        f"to validated.json"
-    )
+    print(f"Saved {len(valid)} validated configs to validated.json")
