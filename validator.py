@@ -27,6 +27,7 @@ TCP_PROTOCOLS = (
     "vless://",
     "trojan://",
     "ss://",
+    "anytls://",
 )
 
 UDP_PROTOCOLS = (
@@ -34,7 +35,6 @@ UDP_PROTOCOLS = (
     "hy2://",
     "hysteria://",
     "tuic://",
-    "anytls://",
     "wireguard://",
     "wg://",
 )
@@ -142,25 +142,24 @@ def _extract_uri_host_port(config: str) -> Optional[Tuple[str, int]]:
 
 def extract_host_port(config: str) -> Tuple[Optional[str], Optional[int]]:
     value = config.strip()
+    lower = value.lower()
 
-    if value.lower().startswith("vmess://"):
+    if lower.startswith("vmess://"):
         result = _extract_vmess(value)
         if result:
             return result
         return None, None
 
-    if value.lower().startswith(("vless://", "trojan://", "ss://")):
-        result = _extract_uri_host_port(value)
-        if result:
-            return result
-
-    if value.lower().startswith(
+    if lower.startswith(
         (
+            "vless://",
+            "trojan://",
+            "ss://",
+            "anytls://",
             "hysteria2://",
             "hy2://",
             "hysteria://",
             "tuic://",
-            "anytls://",
             "wireguard://",
             "wg://",
         )
@@ -246,6 +245,23 @@ def _validate_ss(config: str) -> bool:
         return False
 
 
+def _validate_anytls(config: str) -> bool:
+    try:
+        parsed = urlparse(config)
+        if parsed.scheme.lower() != "anytls":
+            return False
+
+        host = parsed.hostname
+        port = parsed.port
+
+        if not _valid_host(host) or not _valid_port(port):
+            return False
+
+        return True
+    except (ValueError, UnicodeError):
+        return False
+
+
 def _validate_udp_uri(config: str) -> bool:
     try:
         parsed = urlparse(config)
@@ -256,7 +272,6 @@ def _validate_udp_uri(config: str) -> bool:
             "hy2",
             "hysteria",
             "tuic",
-            "anytls",
             "wireguard",
             "wg",
         ):
@@ -309,13 +324,15 @@ def is_structurally_valid(config: str) -> bool:
     if lower.startswith("ss://"):
         return _validate_ss(value)
 
+    if lower.startswith("anytls://"):
+        return _validate_anytls(value)
+
     if lower.startswith(
         (
             "hysteria2://",
             "hy2://",
             "hysteria://",
             "tuic://",
-            "anytls://",
             "wireguard://",
             "wg://",
         )
