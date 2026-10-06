@@ -13,7 +13,7 @@ SOURCES: List[Tuple[str, str]] = [
         "matin_super",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/super-sub.txt",
     ),
-    # UDP
+    # UDP - Hysteria2
     (
         "argh94_hysteria2",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/main/hysteria/Hysteria2.txt",
@@ -23,7 +23,7 @@ SOURCES: List[Tuple[str, str]] = [
         "matin_all",
         "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt",
     ),
-    # UDP
+    # UDP - TUIC
     (
         "argh94_tuic",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/main/tuic/Tuic.txt",
@@ -33,17 +33,17 @@ SOURCES: List[Tuple[str, str]] = [
         "miladtahanian",
         "https://raw.githubusercontent.com/miladtahanian/Config-Collector/main/mixed_iran.txt",
     ),
-    # UDP
+    # UDP - WireGuard 
     (
-        "argh94_wireguard",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/wireguard/WireGuard.txt",
+        "gfpcom_wireguard",
+        "https://raw.githubusercontent.com/wiki/gfpcom/free-proxy-list/lists/wireguard.txt",
     ),
     # TCP
     (
         "mohammadaz2_validated",
         "https://raw.githubusercontent.com/mohammadaz2/v2rayConfigsForYou/main/configs.txt",
     ),
-    # UDP
+    # UDP - Hysteria
     (
         "limilco_hysteria",
         "https://raw.githubusercontent.com/liMilCo/v2r/main/pro/hysteria.txt",
@@ -53,7 +53,7 @@ SOURCES: List[Tuple[str, str]] = [
         "vlesscollector",
         "https://raw.githubusercontent.com/vlesscollector/vlesscollector/refs/heads/main/vless_configs.txt",
     ),
-    # UDP
+    # UDP - All
     (
         "argh94_all",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/main/All_Config.txt",
@@ -63,7 +63,7 @@ SOURCES: List[Tuple[str, str]] = [
         "solispirit_vless",
         "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/vless.txt",
     ),
-    # UDP
+    # UDP - Mixed 
     (
         "soroushmirzaei",
         "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/splitted/mixed",
@@ -73,7 +73,7 @@ SOURCES: List[Tuple[str, str]] = [
         "solispirit_trojan",
         "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/trojan.txt",
     ),
-    # UDP
+    # UDP - All 
     (
         "dukemehdi_all",
         "https://raw.githubusercontent.com/DukeMehdi/FreeList-V2ray-Configs/main/All_Config.txt",
@@ -87,6 +87,16 @@ SOURCES: List[Tuple[str, str]] = [
     (
         "mahdibland",
         "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt",
+    ),
+    # UDP - AnyTLS 
+    (
+        "itlaohui_anytls",
+        "https://raw.githubusercontent.com/itlaohui/aggregator/main/subscribe/anytls.txt",
+    ),
+    # UDP - WireGuard 
+    (
+        "rtwo2_wireguard",
+        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/wireguard.txt",
     ),
 ]
 
