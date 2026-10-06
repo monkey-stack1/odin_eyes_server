@@ -8,86 +8,22 @@ import requests
 
 
 SOURCES: List[Tuple[str, str]] = [
-    (
-        "matin_super",
-        "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/"
-        "main/subscriptions/v2ray/super-sub.txt",
-    ),
-    (
-        "matin_all",
-        "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/"
-        "main/subscriptions/v2ray/all_sub.txt",
-    ),
-    (
-        "miladtahanian",
-        "https://raw.githubusercontent.com/miladtahanian/"
-        "Config-Collector/main/mixed_iran.txt",
-    ),
-    (
-        "mohammadaz2_validated",
-        "https://raw.githubusercontent.com/mohammadaz2/"
-        "v2rayConfigsForYou/main/configs.txt",
-    ),
-    (
-        "vlesscollector",
-        "https://raw.githubusercontent.com/vlesscollector/"
-        "vlesscollector/refs/heads/main/vless_configs.txt",
-    ),
-    (
-        "solispirit_vless",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/"
-        "main/Subscriptions/vless.txt",
-    ),
-    (
-        "solispirit_trojan",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/"
-        "main/Subscriptions/trojan.txt",
-    ),
-    (
-        "solispirit_ss",
-        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/"
-        "main/Subscriptions/ss.txt",
-    ),
-    (
-        "mahdibland",
-        "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/"
-        "master/sub/sub_merge.txt",
-    ),
-    (
-        "soroushmirzaei",
-        "https://raw.githubusercontent.com/soroushmirzaei/"
-        "telegram-configs-collector/main/splitted/mixed",
-    ),
-    (
-        "argh94_hysteria2",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
-        "main/hysteria/Hysteria2.txt",
-    ),
-    (
-        "argh94_tuic",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
-        "main/tuic/Tuic.txt",
-    ),
-    (
-        "argh94_all",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
-        "main/All_Config.txt",
-    ),
-    (
-        "limilco_hysteria",
-        "https://raw.githubusercontent.com/liMilCo/v2r/"
-        "main/pro/hysteria.txt",
-    ),
-    (
-        "dukemehdi_all",
-        "https://raw.githubusercontent.com/DukeMehdi/"
-        "FreeList-V2ray-Configs/main/All_Config.txt",
-    ),
-    (
-        "argh94_wireguard",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/"
-        "main/wireguard/WireGuard.txt",
-    ),
+    ("matin_super", "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/super-sub.txt"),
+    ("argh94_hysteria2", "https://raw.githubusercontent.com/Argh94/Proxy-List/main/hysteria/Hysteria2.txt"),
+    ("matin_all", "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt"),
+    ("argh94_tuic", "https://raw.githubusercontent.com/Argh94/Proxy-List/main/tuic/Tuic.txt"),
+    ("miladtahanian", "https://raw.githubusercontent.com/miladtahanian/Config-Collector/main/mixed_iran.txt"),
+    ("argh94_wireguard", "https://raw.githubusercontent.com/Argh94/Proxy-List/main/wireguard/WireGuard.txt"),
+    ("mohammadaz2_validated", "https://raw.githubusercontent.com/mohammadaz2/v2rayConfigsForYou/main/configs.txt"),
+    ("argh94_all", "https://raw.githubusercontent.com/Argh94/Proxy-List/main/All_Config.txt"),
+    ("vlesscollector", "https://raw.githubusercontent.com/vlesscollector/vlesscollector/refs/heads/main/vless_configs.txt"),
+    ("limilco_hysteria", "https://raw.githubusercontent.com/liMilCo/v2r/main/pro/hysteria.txt"),
+    ("solispirit_vless", "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/vless.txt"),
+    ("solispirit_trojan", "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/trojan.txt"),
+    ("solispirit_ss", "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Subscriptions/ss.txt"),
+    ("mahdibland", "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt"),
+    ("soroushmirzaei", "https://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/splitted/mixed"),
+    ("dukemehdi_all", "https://raw.githubusercontent.com/DukeMehdi/FreeList-V2ray-Configs/main/All_Config.txt"),
 ]
 
 SUPPORTED_PREFIXES = (
@@ -103,16 +39,17 @@ SUPPORTED_PREFIXES = (
     "wg://",
 )
 
-# TCP first, UDP second (TCP is proven; UDP is experimental)
+# Interleaved TCP/UDP: TCP first, then UDP, repeating.
 FAMILY_ORDER = (
     "vmess://",
-    "vless://",
-    "trojan://",
-    "ss://",
     "hysteria2://",
-    "hy2://",
+    "vless://",
     "tuic://",
+    "trojan://",
+    "anytls://",
+    "ss://",
     "wireguard://",
+    "hy2://",
     "wg://",
 )
 
@@ -124,7 +61,7 @@ URI_PATTERN = re.compile(
 
 def _extract_uri_lines(text: str) -> List[str]:
     lines = []
-    for line in text.replace("\\r", "\\n").splitlines():
+    for line in text.replace("\r", "\n").splitlines():
         value = line.strip().strip("`").strip()
         if not value or value.startswith("#"):
             continue
@@ -249,6 +186,9 @@ def protocol_of(config: str) -> str:
     for prefix in FAMILY_ORDER:
         if lower.startswith(prefix):
             return prefix.replace("://", "")
+    for prefix in SUPPORTED_PREFIXES:
+        if lower.startswith(prefix):
+            return prefix.replace("://", "")
     return "unknown"
 
 
@@ -261,11 +201,16 @@ def select_round_robin(
         proto = protocol_of(config)
         buckets.setdefault(proto, []).append(config)
 
-    order = [p.replace("://", "") for p in FAMILY_ORDER]
-    order.append("unknown")
+    order = []
+    for prefix in FAMILY_ORDER:
+        proto = prefix.replace("://", "")
+        if proto in buckets and proto not in order:
+            order.append(proto)
     for proto in buckets:
         if proto not in order:
             order.append(proto)
+
+    print(f"Round-robin order: {order}")
 
     selected: List[str] = []
     index = 0
@@ -321,7 +266,7 @@ def main() -> None:
         "--max-configs",
         type=int,
         default=0,
-        help="Maximum configs to keep (0 = no limit). TCP first, round-robin.",
+        help="Maximum configs to keep (0 = no limit).",
     )
     parser.add_argument(
         "--output",
