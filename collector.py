@@ -35,6 +35,7 @@ SUPPORTED_PREFIXES = (
     "hy2://",
     "hysteria://",
     "tuic://",
+    "anytls://",
     "wireguard://",
     "wg://",
 )
@@ -54,7 +55,7 @@ FAMILY_ORDER = (
 )
 
 URI_PATTERN = re.compile(
-    r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|wireguard|wg)://\S+",
+    r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|anytls|wireguard|wg)://\S+",
     flags=re.IGNORECASE,
 )
 
