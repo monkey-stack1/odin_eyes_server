@@ -2,6 +2,7 @@ import base64
 import json
 import os
 from datetime import datetime, timezone
+from typing import List
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
@@ -26,11 +27,15 @@ def _load_key(name: str) -> bytes:
     return encoded
 
 
-SECRET_KEY = _load_key("AES_KEY")
-IV = _load_key("AES_IV")
+def _get_key() -> bytes:
+    return _load_key("AES_KEY")
 
 
-def encrypt_configs(configs: list) -> str:
+def _get_iv() -> bytes:
+    return _load_key("AES_IV")
+
+
+def encrypt_configs(configs: List[str]) -> str:
     data = json.dumps(
         {
             "version": 1,
@@ -41,9 +46,9 @@ def encrypt_configs(configs: list) -> str:
     )
 
     cipher = AES.new(
-        SECRET_KEY,
+        _get_key(),
         AES.MODE_CBC,
-        IV,
+        _get_iv(),
     )
 
     padded = pad(
@@ -60,7 +65,11 @@ def save_encrypted(
     encrypted: str,
     path: str = "configs.enc",
 ) -> str:
-    with open(path, "w") as f:
+    with open(
+        path,
+        "w",
+        encoding="utf-8",
+    ) as f:
         f.write(encrypted)
 
     return path
