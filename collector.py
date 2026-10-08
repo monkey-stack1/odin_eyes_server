@@ -60,36 +60,55 @@ SOURCES: List[Tuple[str, str]] = [
         "argh94_all",
         "https://raw.githubusercontent.com/Argh94/Proxy-List/main/All_Config.txt",
     ),
-    # UDP - AnyTLS
+    # New TCP aggregators (vless+reality, ss, xhttp)
     (
-        "rtwo2_anytls",
-        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/anytls.txt",
-    ),
-    # UDP - Hysteria2
-    (
-        "rtwo2_hysteria2",
-        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/hysteria2.txt",
+        "aliilapro",
+        "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt",
     ),
     (
-        "limilco_hysteria",
-        "https://raw.githubusercontent.com/liMilCo/v2r/main/pro/hysteria.txt",
-    ),
-    # UDP - TUIC
-    (
-        "argh94_tuic",
-        "https://raw.githubusercontent.com/Argh94/Proxy-List/main/Tuic.txt",
+        "barryfar",
+        "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_Sub.txt",
     ),
     (
-        "rtwo2_tuic",
-        "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/protocols/tuic.txt",
+        "epodonios_spl_vless",
+        "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt",
+    ),
+    # Near-Iran countries (low latency, gaming)
+    (
+        "country_turkiye",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/T%C3%BCrkiye.txt",
     ),
     (
-        "coldwater_tuic",
-        "https://raw.githubusercontent.com/coldwater-10/V2ray-Config/main/Sub1.txt",
+        "country_uae",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/United_Arab_Emirates.txt",
     ),
     (
-        "dimzon_tuic",
-        "https://raw.githubusercontent.com/dimzon/scaling-sniffle/main/any/tuic.txt",
+        "country_armenia",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Armenia.txt",
+    ),
+    (
+        "country_azerbaijan",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Azerbaijan.txt",
+    ),
+    (
+        "country_saudi",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Saudi_Arabia.txt",
+    ),
+    (
+        "country_bahrain",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Bahrain.txt",
+    ),
+    (
+        "country_iraq",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Iraq.txt",
+    ),
+    (
+        "country_cyprus",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Cyprus.txt",
+    ),
+    (
+        "country_kazakhstan",
+        "https://raw.githubusercontent.com/SoliSpirit/v2ray-configs/main/Countries/Kazakhstan.txt",
     ),
 ]
 
@@ -106,28 +125,19 @@ SUPPORTED_PREFIXES = (
     "vless://",
     "trojan://",
     "ss://",
-    "hysteria2://",
-    "hy2://",
-    "hysteria://",
-    "tuic://",
-    "anytls://",
 )
 
 
 FAMILY_ORDER = (
     "vmess://",
-    "hysteria2://",
     "vless://",
-    "tuic://",
     "trojan://",
-    "anytls://",
     "ss://",
-    "hy2://",
 )
 
 
 URI_PATTERN = re.compile(
-    r"(?:vmess|vless|trojan|ss|hysteria2|hy2|hysteria|tuic|anytls)://\S+",
+    r"(?:vmess|vless|trojan|ss)://\S+",
     flags=re.IGNORECASE,
 )
 
@@ -466,11 +476,25 @@ def collect(
 
     print("Protocol breakdown:")
 
-    for protocol, count in sorted(
-        protocol_counts.items(),
-        key=lambda x: -x[1],
-    ):
-        print(f"  {protocol}: {count}")
+    category_counts = {"vless_reality": 0, "vless_xhttp": 0, "ss2022": 0}
+
+    for config in valid:
+        lower = config.lower()
+
+        if lower.startswith("vless://"):
+            if "security=reality" in lower:
+                category_counts["vless_reality"] += 1
+
+            if "type=xhttp" in lower:
+                category_counts["vless_xhttp"] += 1
+
+        if lower.startswith("ss://") and "2022-blake3" in lower:
+            category_counts["ss2022"] += 1
+
+    print("Category counts:")
+
+    for key, count in category_counts.items():
+        print(f"  {key}: {count}")
 
     return valid
 

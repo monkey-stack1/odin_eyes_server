@@ -13,11 +13,6 @@ SUPPORTED_PROTOCOLS = (
     "vless://",
     "trojan://",
     "ss://",
-    "hysteria2://",
-    "hy2://",
-    "hysteria://",
-    "tuic://",
-    "anytls://",
 )
 
 TCP_PROTOCOLS = (
@@ -25,15 +20,9 @@ TCP_PROTOCOLS = (
     "vless://",
     "trojan://",
     "ss://",
-    "anytls://",
 )
 
-UDP_PROTOCOLS = (
-    "hysteria2://",
-    "hy2://",
-    "hysteria://",
-    "tuic://",
-)
+UDP_PROTOCOLS = ()
 
 HOST_PATTERN = re.compile(r"^[A-Za-z0-9._:-]+$")
 
