@@ -476,6 +476,12 @@ def collect(
 
     print("Protocol breakdown:")
 
+    for protocol, count in sorted(
+        protocol_counts.items(),
+        key=lambda x: -x[1],
+    ):
+        print(f"  {protocol}: {count}")
+
     category_counts = {"vless_reality": 0, "vless_xhttp": 0, "ss2022": 0}
 
     for config in valid:
